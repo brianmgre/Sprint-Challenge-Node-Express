@@ -53,9 +53,12 @@ router.post('/', async (req, res) => {
     try {
         const { name, description } = req.body;
         const changes = req.body;
-        if (!changes) {
+        const charLimit = 128;
+        if (changes.name.length > charLimit){
+        return sendErr(500, 'name must be less than 128 characters')
+        }else if (!changes) {
             return sendErr(500, 'both name and description are required', res)
-        }
+        } 
         const id = await projectDb.insert({ name, description });
         const project = await projectDb.get(id.id);
         res.status(200).json(project);
@@ -70,6 +73,8 @@ router.put('/:id', (req, res) => {
     const { id } = req.params;
     const { name, description } = req.body;
     const changes = req.body;
+    const charLimit = 128;
+    
     projectDb
         .update(id, changes)
         .then(project => {

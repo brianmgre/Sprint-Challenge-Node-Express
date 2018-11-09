@@ -22,7 +22,6 @@ router.get('/', (req, res) => {
         });
 });
 
-
 router.get('/:id', (req, res) => {
     const { id } = req.params;
     actionDb
@@ -41,9 +40,12 @@ router.post('/', async (req, res) => {
     try {
         const { project_id, description, notes } = req.body;
         const changes = req.body;
-        if (!changes) {
-            return sendErr(500, 'project_id of an existing project is required', res)
-        }
+        const charLimit = 128;
+        if (changes.description.length > charLimit){
+            return sendErr(500, 'name must be less than 128 characters')
+            }else if (!changes) {
+                return sendErr(500, 'both name and description are required', res)
+            } 
         const id = await actionDb.insert({ project_id, description, notes });
         const action = await actionDb.get(id.id);
         res.status(200).json(action)
